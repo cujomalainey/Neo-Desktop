@@ -1,13 +1,20 @@
-#import struct
+import subprocess
 from PIL import Image
 import scipy
 import scipy.misc
 import scipy.cluster
 
+p = subprocess.Popen(["REG", "QUERY", "HKCU\Software\Microsoft\Internet Explorer\Desktop\General", "/v", "WallpaperSource"], stdout=subprocess.PIPE, shell=True)
+(output, err) = p.communicate()
+
+p_status = p.wait()
+path = output.split()[-1]
+#print "Command exit status/return code : ", p_status
+
 NUM_CLUSTERS = 5
 
 print 'reading image'
-im = Image.open('/Users/curtis/Google Drive/pictures/backgrounds/paintedcanyon11080p.jpg')
+im = Image.open(path)
 im = im.resize((400, 400))      # optional, to reduce time
 ar = scipy.misc.fromimage(im)
 shape = ar.shape
