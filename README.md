@@ -10,3 +10,5 @@ http://superuser.com/questions/244924/how-could-i-find-out-the-path-to-the-curre
 
 The service setup for python comes from here
 http://stackoverflow.com/questions/32404/is-it-possible-to-run-a-python-script-as-a-service-in-windows-if-possible-how
+
+The adafruit neopixel library comes from https://github.com/adafruit/Adafruit_NeoPixel
