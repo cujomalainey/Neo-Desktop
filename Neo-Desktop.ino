@@ -6,17 +6,16 @@
 uint8_t current_color[] = {0, 0, 0};
 uint8_t target_color[] = {0, 0, 0};
 char message[60];
-char debug[30];
 uint8_t str_postion = 0;
-uint8_t red;
-uint8_t green;
-uint8_t blue;
+uint16_t red;
+uint16_t green;
+uint16_t blue;
 
 Adafruit_NeoPixel pixels = Adafruit_NeoPixel(NUMPIXELS, COLORPIN, NEO_GRB + NEO_KHZ800);
 
 void setup() {
     Serial.begin(9600);
-    message[59] = '\0';
+    sprintf(message, "(1, 2, 3)\n");
 }
 
 void loop() {
@@ -31,14 +30,11 @@ void loop() {
       {
         Serial.print("GREEN!\n");
       }
-      else if (sscanf(message, "(%d, %d, %d)\n", &red, &green, &blue) == 3)
+      else if (sscanf(message, "(%u, %u, %u)\n", &red, &green, &blue) == 3)
       {
-        sprintf(debug, "got (%d, %d, %d)\n", red, green, blue);
-        Serial.println(message);
-        Serial.print(debug);
-        target_color[0] = red;
-        target_color[1] = green;
-        target_color[2] = blue;
+        target_color[0] = (uint8_t)red;
+        target_color[1] = (uint8_t)green;
+        target_color[2] = (uint8_t)blue;
       }
       else
       {
@@ -53,8 +49,6 @@ void loop() {
   delay(0.01);
   if (current_color[0] != target_color[0] || current_color[1] != target_color[1] || current_color[2] != target_color[2])
   {
-    // sprintf(debug, "(%d, %d, %d)\n", current_color[0], current_color[1], current_color[2]);
-    // Serial.print(debug);
     for (int i; i < 3; i++)
     {
       if (target_color[i] > current_color[i])
