@@ -3,8 +3,8 @@
 #define COLORPIN 6
 #define NUMPIXELS 60
 
-uint8_t current_color[] = {0, 0, 0};
-uint8_t target_color[] = {0, 0, 0};
+int current_color[] = {0, 0, 0};
+int target_color[] = {0, 0, 0};
 char message[60];
 uint8_t str_postion = 0;
 uint16_t red;
@@ -15,7 +15,7 @@ Adafruit_NeoPixel pixels = Adafruit_NeoPixel(NUMPIXELS, COLORPIN, NEO_GRB + NEO_
 
 void setup() {
     Serial.begin(9600);
-    sprintf(message, "(1, 2, 3)\n");
+    pixels.begin();
 }
 
 void loop() {
@@ -46,7 +46,7 @@ void loop() {
       str_postion++;
     }
   }
-  delay(0.01);
+  delay(10);
   if (current_color[0] != target_color[0] || current_color[1] != target_color[1] || current_color[2] != target_color[2])
   {
     for (int i; i < 3; i++)
