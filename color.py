@@ -9,24 +9,55 @@ import serial
 import sys
 import glob
 import io
+import binascii
+
+def serial_ports():
+    """ Lists serial port names
+        :raises EnvironmentError:
+            On unsupported or unknown platforms
+        :returns:
+            A list of the serial ports available on the system
+    """
+    if sys.platform.startswith('win'):
+        ports = ['COM%s' % (i + 1) for i in range(256)]
+    elif sys.platform.startswith('linux') or sys.platform.startswith('cygwin'):
+        # this excludes your current terminal "/dev/tty"
+        ports = glob.glob('/dev/tty[A-Za-z]*')
+    elif sys.platform.startswith('darwin'):
+        ports = glob.glob('/dev/tty.*')
+    else:
+        raise EnvironmentError('Unsupported platform')
+
+    result = []
+    for port in ports:
+        try:
+            s = serial.Serial(port)
+            s.close()
+            result.append(port)
+        except (OSError, serial.SerialException):
+            pass
+    return result
 
 current_path = ""
 serials = serial_ports()
 print "Finding Serial Port"
 serial_arduino = None
 for ser in serials:
-	sio = io.TextIOWrapper(io.BufferedRWPair(ser, ser))
-	sio.write(ascii("T\n"))
-	sio.flush()
+	print "trying: " + ser
+	s = serial.Serial(ser)
+	s.write("T\n")
+	print "sending test command"
 	time.sleep(0.5)
-	test = sio.readline()
+	print "reading response"
+	test = s.readline()
 	if test == "GREEN!\n":
-		serial_arduino = sio
+		serial_arduino = s
 
 if serial_arduino == None:
+	print "Unable to find serial port"
 	exit()
 
-
+print "entering main loop"
 while True:
 	time.sleep(0.1)
 	p = subprocess.Popen(["REG", "QUERY", "HKCU\Software\Microsoft\Internet Explorer\Desktop\General", "/v", "WallpaperSource"], stdout=subprocess.PIPE, shell=True)
@@ -55,31 +86,4 @@ while True:
 		peak = codes[index_max]
 		print 'most frequent is %s' % peak
 		
-		sio.write(ascii(tuple(peak).__str__() + "\n"))
-
-def serial_ports():
-    """ Lists serial port names
-        :raises EnvironmentError:
-            On unsupported or unknown platforms
-        :returns:
-            A list of the serial ports available on the system
-    """
-    if sys.platform.startswith('win'):
-        ports = ['COM%s' % (i + 1) for i in range(256)]
-    elif sys.platform.startswith('linux') or sys.platform.startswith('cygwin'):
-        # this excludes your current terminal "/dev/tty"
-        ports = glob.glob('/dev/tty[A-Za-z]*')
-    elif sys.platform.startswith('darwin'):
-        ports = glob.glob('/dev/tty.*')
-    else:
-        raise EnvironmentError('Unsupported platform')
-
-    result = []
-    for port in ports:
-        try:
-            s = serial.Serial(port)
-            s.close()
-            result.append(port)
-        except (OSError, serial.SerialException):
-            pass
-    return result
+		serial_arduino.write(tuple(peak).__str__() + "\n")
